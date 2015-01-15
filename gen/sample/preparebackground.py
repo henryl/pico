@@ -66,7 +66,7 @@ for dirpath, dirnames, filenames in os.walk(srcfolder):
 			continue
 
 		#
-		print(path)
+		print("%s (%d)" % (path, n))
 
 		#
 		im = numpy.asarray(im)

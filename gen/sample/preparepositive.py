@@ -22,7 +22,7 @@ PLOT = False # To plot or not to plot images via matplotlib (debugging)
 
 MAXWSIZE = 192.0 # Maximum image "window" size
 
-NRANDS = 5 # Number of samples to generate
+NRANDS = 12 # Number of samples to generate
 
 MININPUTSIZE = 15
 
@@ -148,7 +148,7 @@ def exportmirrored(im, r, c, s, folder, id, list):
     export(im, r, c, s, folder, id, list)
 
 
-if __name__ == "__main__":
+def prepare():
     parser = argparse.ArgumentParser()
     parser.add_argument('imagesfile', help='input image list')
     parser.add_argument('srcfolder', help='input folder')
@@ -159,6 +159,7 @@ if __name__ == "__main__":
     parser.add_argument('--maxpitch', help='max pitch', type=float, default=22.0)
     parser.add_argument('--minyaw', help='min yaw', type=float, default=-22.0)
     parser.add_argument('--maxyaw', help='max yaw', type=float, default=22.0)
+    parser.add_argument('--flipyaw', help='flip yaw', action='store_true')
     args = parser.parse_args()
     
     imagesfile = args.imagesfile
@@ -171,7 +172,11 @@ if __name__ == "__main__":
     maxpitchrads = args.maxpitch / 180 * math.pi
     minyawrads = args.minyaw / 180 * math.pi
     maxyawrads = args.maxyaw / 180 * math.pi
-    
+
+    flipyaw = args.flipyaw
+
+    if flipyaw:
+        assert minyawrads >= 0 and maxyawrads >= 0
 
     # images file is a tab delimited file with the following format:
     #     <filepath, x, y, w, h, roll, pitch, yaw>
@@ -198,18 +203,14 @@ if __name__ == "__main__":
         rollrads = float(rollrads)
         pitchrads = float(pitchrads)
         yawrads = float(yawrads)
+        nyawrads = abs(yawrads) if flipyaw else yawrads
         
         assert w == h
-
-        # TODO: flip on negative yaw option.
+        
         if (w > MININPUTSIZE and h > MININPUTSIZE
                 and minrollrads < rollrads < maxrollrads
                 and minpitchrads < pitchrads < maxpitchrads
-                and minyawrads < yawrads < maxyawrads):
-            
-            c = x + 0.5 * w
-            r = y + 0.5 * h
-            s = w
+                and minyawrads < nyawrads < maxyawrads):
 
             try:
                 im = Image.open(os.path.join(srcfolder, filepath)).convert('L')
@@ -217,21 +218,46 @@ if __name__ == "__main__":
                 print("ERROR: Could not open %s" % filepath)
                 continue
 
-            sys.stdout.write("%d of %d - %s \r" % (i + 1, imlist_len, filepath))
-            sys.stdout.flush()
-
             im = numpy.asarray(im)
+
+            imh = im.shape[0]
+            imw = im.shape[1]
+            
+            if flipyaw and yawrads < 0:
+                didflip = True
+                im = numpy.asarray(ImageOps.mirror(Image.fromarray(im)))
+                c = imw - (x + 0.5 * w)
+            else:
+                didflip = False
+                c = x + 0.5 * w
+                
+            r = y + 0.5 * h
+            s = w
             
             oid = 'face%d' % n
             export(im, r, c, s, dstfolder, oid, ofile)
             n += 1
 
-            oid = 'face%d' % n
-            exportmirrored(im, r, c, s, dstfolder, oid, ofile)
-            n += 1
-            
+            if not flipyaw:
+                oid = 'face%d' % n
+                exportmirrored(im, r, c, s, dstfolder, oid, ofile)
+                n += 1
+
+            if flipyaw:
+                manip = "flipyaw" if didflip else "I"
+            else:
+                manip = "mirror"
+                
+            sys.stdout.write("%d of %d - %s (%s) \r" % (i + 1, imlist_len, filepath, manip))
+            sys.stdout.flush()
+
+    print "DONE"
     ofile.flush()
     ofile.close()
+
+if __name__ == "__main__":
+    prepare()
+    
             
     
 
