@@ -4,7 +4,7 @@
 # prepare face samples (from the GENKI dataset)
 #
 
-mkdir -p faces
+# mkdir -p faces
 
 #python preparefacesamplesfromgenki.py $1 faces
 
@@ -12,7 +12,7 @@ mkdir -p faces
 # prepare non-face samples (background)
 #
 
-mkdir -p nonfaces
+# mkdir -p nonfaces
 
 #python preparebackground.py $2 nonfaces
 
@@ -21,12 +21,12 @@ mkdir -p nonfaces
 #
 
 # create an object detector
-./picolrn 1 1 6 d > log.txt
+./picolrn 1 1 6 $1 > log.txt
 
 # append stages
-./picolrn d faces nonfaces 1 1e-6 0.980 0.5 1 d >> log.txt
-./picolrn d faces nonfaces 1 1e-6 0.985 0.5 1 d >> log.txt
-./picolrn d faces nonfaces 1 1e-6 0.990 0.5 2 d >> log.txt
-./picolrn d faces nonfaces 1 1e-6 0.995 0.5 3 d >> log.txt
-./picolrn d faces nonfaces 6 1e-6 0.997 0.5 10 d >> log.txt
-./picolrn d faces nonfaces 10 1e-6 0.999 0.5 20 d >> log.txt
+./picolrn $1 $2 $3 1 1e-6 0.980 0.5 1 $1 >> log.txt
+./picolrn $1 $2 $3 1 1e-6 0.985 0.5 1 $1 >> log.txt
+./picolrn $1 $2 $3 1 1e-6 0.990 0.5 2 $1 >> log.txt
+./picolrn $1 $2 $3 1 1e-6 0.995 0.5 3 $1 >> log.txt
+./picolrn $1 $2 $3 6 1e-6 0.997 0.5 10 $1 >> log.txt
+./picolrn $1 $2 $3 10 1e-6 0.999 0.5 20 $1 >> log.txt

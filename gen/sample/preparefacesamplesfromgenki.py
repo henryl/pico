@@ -29,7 +29,7 @@ if not os.path.exists(dstfolder):
    os.makedirs(dstfolder)
 
 #
-plot = 0
+plot = 1
 
 if plot:
 	fig = matplotlib.pyplot.figure()
@@ -123,7 +123,7 @@ def export(im, r, c, s, folder, id, list):
 
 			matplotlib.pyplot.draw()
 
-			response = input('Press Enter to continue...')
+			response = raw_input('Press Enter to continue...')
 
 		list.write('\t%d %d %d\n' % (int(rtmp), int(ctmp), int(stmp)))
 
