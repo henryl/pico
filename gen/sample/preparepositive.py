@@ -22,7 +22,7 @@ PLOT = False # To plot or not to plot images via matplotlib (debugging)
 
 MAXWSIZE = 192.0 # Maximum image "window" size
 
-NRANDS = 6 # Number of samples to generate
+NRANDS = 14 # Number of samples to generate
 
 MININPUTSIZE = 15
 
